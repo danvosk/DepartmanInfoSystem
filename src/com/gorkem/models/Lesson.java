@@ -16,6 +16,7 @@ public class Lesson {
         this.midtermResult = midtermResult;
         this.finalResult = finalResult;
         this.teacher = teacher;
+        
     }
 
     public String getName() {
