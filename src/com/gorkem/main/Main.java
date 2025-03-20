@@ -1,175 +1,158 @@
 package com.gorkem.main;
 
-import com.gorkem.models.Teacher;
+import com.gorkem.models.Course;
 import com.gorkem.models.Student;
-import com.gorkem.models.Lesson;
-import com.gorkem.services.StudentService;
-import com.gorkem.services.TeacherService;
-import java.util.ArrayList;
+import com.gorkem.models.Teacher;
+import com.gorkem.services.*;
+
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    
-    private static Scanner scanner = new Scanner(System.in); 
-        
-    public static List<Student> studentList = new ArrayList<>();
-    public static List<Teacher> teacherList = new ArrayList<>();
-    public static List<Lesson> lessonList = new ArrayList<>();
-
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
         StudentService studentService = new StudentService();
         TeacherService teacherService = new TeacherService();
+        CourseService courseService = new CourseService();
+        StudentCourseService studentCourseService = new StudentCourseService();
 
-        // ✅ Öğrencileri ekle
-        Student student1 = new Student("Gorkem Karagoz");
-        Student student2 = new Student("Ramazan Demir");
-        Student student3 = new Student("Bugra Toklu");
+        while (true) {
+            System.out.println("\n--- Department Information System ---");
+            System.out.println("1. Student Operations");
+            System.out.println("2. Teacher Operations");
+            System.out.println("3. Course Operations");
+            System.out.println("4. Exit");
+            System.out.print("Enter your choice: ");
 
-        studentService.addStudent(student1);
-        studentService.addStudent(student2);
-        studentService.addStudent(student3);
-
-        // ✅ Öğretmenleri ekle
-        Teacher teacher1 = new Teacher("Yusuf Ozcevik");
-        Teacher teacher2 = new Teacher("Osman Altay");
-
-        teacherService.addTeacher(teacher1);
-        teacherService.addTeacher(teacher2);
-
-        // ✅ Dersleri oluştur ve öğretmenlere ata
-        Lesson lesson1 = new Lesson("Veri Yapilari", 80, 90, teacher1);
-        Lesson lesson2 = new Lesson("Veri Madenciligi", 75, 85, teacher2);
-
-        lessonList.add(lesson1);
-        lessonList.add(lesson2);
-
-        teacherService.assignLessonToTeacher(teacher1, lesson1);
-        teacherService.assignLessonToTeacher(teacher2, lesson2);
-
-        // ✅ Dersleri öğrencilere ekle
-        studentService.enrollStudentInLesson(student1, lesson1);
-        studentService.enrollStudentInLesson(student1, lesson2);
-        studentService.enrollStudentInLesson(student2, lesson1);
-        studentService.enrollStudentInLesson(student3, lesson2);
-
-        selectionScreen(); 
-    }
-
-    public static void selectionScreen() { 
-        boolean isRunning = true;
-        while (isRunning) {
-            System.out.println("\n--- Bolum Bilgi Sistemi ---");
-            System.out.println("1. Ogrenci islemleri");
-            System.out.println("2. Ogretmen islemleri");
-            System.out.println("3. Ders islemleri");
-            System.out.println("4. Cikis");
-            System.out.print("Bir secim yapin: ");
-            
             int choice = scanner.nextInt();
-            
+            scanner.nextLine();
+
             switch (choice) {
                 case 1:
-                    studentOperations();
+                    studentOperations(studentService, studentCourseService, scanner);
                     break;
                 case 2:
-                    teacherOperations();
+                    teacherOperations(teacherService, scanner);
                     break;
                 case 3:
-                    lessonOperations();
+                    courseOperations(courseService, teacherService, studentCourseService, scanner);
                     break;
                 case 4:
-                    isRunning = false;
-                    System.out.println("Sistemden çıkılıyor...");
-                    break;
+                    System.out.println("Exiting...");
+                    return;
                 default:
-                    System.out.println("Lütfen doğru işlemi seçiniz...");
+                    System.out.println("Invalid choice.");
             }
         }
     }
 
-    public static void studentOperations() {
+    private static void studentOperations(StudentService studentService, StudentCourseService studentCourseService, Scanner scanner) {
         while (true) {
-            System.out.println("\n--- Ogrenci Islemleri ---");
-            System.out.println("1. Ogrencileri Listele");
-            System.out.println("2. Geri Git");
-            System.out.print("Bir secim yapin: ");
+            System.out.println("\n--- Student Operations ---");
+            System.out.println("1. Add Student");
+            System.out.println("2. List Students and Their Courses");
+            System.out.println("3. Enroll Student in Course");
+            System.out.println("4. Go Back");
+            System.out.print("Enter your choice: ");
+
             int choice = scanner.nextInt();
+            scanner.nextLine();
 
             if (choice == 1) {
-                listAllStudentsWithLessons();
+                System.out.print("Enter first name: ");
+                String firstName = scanner.nextLine();
+                System.out.print("Enter last name: ");
+                String lastName = scanner.nextLine();
+                studentService.addStudent(new Student(0, firstName, lastName));
+                System.out.println("Student added successfully!");
             } else if (choice == 2) {
-                break;
+                studentService.getAllStudentsWithCourses();
+            } else if (choice == 3) {
+                System.out.print("Enter Student ID: ");
+                int studentId = scanner.nextInt();
+                System.out.print("Enter Course ID: ");
+                int courseId = scanner.nextInt();
+                studentCourseService.enrollStudentInCourse(studentId, courseId);
+                System.out.println("Student enrolled in course!");
+            } else if (choice == 4) {
+                return;
             } else {
-                System.out.println("Gecersiz secim!");
+                System.out.println("Invalid choice.");
             }
         }
     }
 
-    public static void teacherOperations() {
+    private static void teacherOperations(TeacherService teacherService, Scanner scanner) {
         while (true) {
-            System.out.println("\n--- Ogretmen Islemleri ---");
-            System.out.println("1. Ogretmenleri Listele");
-            System.out.println("2. Geri Git");
-            System.out.print("Bir secim yapin: ");
+            System.out.println("\n--- Teacher Operations ---");
+            System.out.println("1. Add Teacher");
+            System.out.println("2. List Teachers and Their Courses");
+            System.out.println("3. Update Student Grades (Midterm & Final)");
+            System.out.println("4. Go Back");
+            System.out.print("Enter your choice: ");
+
             int choice = scanner.nextInt();
+            scanner.nextLine();
 
             if (choice == 1) {
-                listAllTeachersWithLessons();
+                System.out.print("Enter first name: ");
+                String firstName = scanner.nextLine();
+                System.out.print("Enter last name: ");
+                String lastName = scanner.nextLine();
+                teacherService.addTeacher(new Teacher(0, firstName, lastName));
+                System.out.println("Teacher added successfully!");
             } else if (choice == 2) {
-                break;
+                teacherService.getAllTeachersWithCourses();
+            } else if (choice == 3) {
+                System.out.print("Enter Student ID: ");
+                int studentId = scanner.nextInt();
+                System.out.print("Enter Course ID: ");
+                int courseId = scanner.nextInt();
+                System.out.print("Enter Midterm Grade: ");
+                int midterm = scanner.nextInt();
+                System.out.print("Enter Final Exam Grade: ");
+                int finalExam = scanner.nextInt();
+                teacherService.updateStudentGrades(studentId, courseId, midterm, finalExam);
+                System.out.println("Student grades updated successfully!");
+            } else if (choice == 4) {
+                return;
             } else {
-                System.out.println("Gecersiz secim!");
+                System.out.println("Invalid choice.");
             }
         }
     }
 
-    public static void lessonOperations() {
+    private static void courseOperations(CourseService courseService, TeacherService teacherService, StudentCourseService studentCourseService, Scanner scanner) {
         while (true) {
-            System.out.println("\n--- Ders Islemleri ---");
-            System.out.println("1. Dersleri Listele");
-            System.out.println("2. Geri Git");
-            System.out.print("Bir secim yapin: ");
+            System.out.println("\n--- Course Operations ---");
+            System.out.println("1. List Courses");
+            System.out.println("2. Add New Course");
+            System.out.println("3. Go Back");
+            System.out.print("Enter your choice: ");
+
             int choice = scanner.nextInt();
+            scanner.nextLine();
 
             if (choice == 1) {
-                listAllLessonsWithStudents();
+                List<Course> courses = courseService.getAllCourses();
+                for (Course course : courses) {
+                    System.out.println(course);
+                }
             } else if (choice == 2) {
-                break;
+                System.out.print("Enter Course Name: ");
+                String courseName = scanner.nextLine();
+
+                System.out.println("Available Teachers:");
+                teacherService.getAllTeachersWithCourses();
+                System.out.print("Select Teacher ID: ");
+                int teacherId = scanner.nextInt();
+
+                courseService.addCourse(courseName, teacherId);
+                System.out.println("Course added successfully!");
+            } else if (choice == 3) {
+                return;
             } else {
-                System.out.println("Gecersiz secim!");
-            }
-        }
-    }
-
-    public static void listAllStudentsWithLessons() {
-        System.out.println("\n--- Ogrenciler ve Aldiklari Dersler ---");
-        for (Student student : studentList) {
-            System.out.println(student.getStudentName() + " aldigi dersler:");
-            for (Lesson lesson : student.getLessons()) {
-                System.out.println(" - " + lesson.getName() + 
-                    " (Vize: " + lesson.getMidtermResult() + 
-                    ", Final: " + lesson.getFinalResult() + ")");
-            }
-        }
-    }
-
-    public static void listAllTeachersWithLessons() {
-        System.out.println("\n--- Ogretmenler ve Verdikleri Dersler ---");
-        for (Teacher teacher : teacherList) {
-            System.out.println(teacher.getTeacherName() + " verdigi dersler:");
-            for (Lesson lesson : teacher.getLessons()) {
-                System.out.println(" - " + lesson.getName());
-            }
-        }
-    }
-
-    public static void listAllLessonsWithStudents() {
-        System.out.println("\n--- Dersler ve Kayitli Ogrenciler ---");
-        for (Lesson lesson : lessonList) {
-            System.out.println(lesson.getName() + " dersine kayitli ogrenciler:");
-            for (Student student : lesson.getStudents()) {
-                System.out.println(" - " + student.getStudentName());
+                System.out.println("Invalid choice.");
             }
         }
     }

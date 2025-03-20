@@ -1,26 +1,30 @@
 package com.gorkem.models;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Student {
-    
-    private String studentName;
-    private List<Lesson> lessons = new ArrayList<>();
+    private int id;
+    private String firstName;
+    private String lastName;
 
-    public Student(String studentName) {
-        this.studentName = studentName;
+    public Student(int id, String firstName, String lastName) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
-    public String getStudentName() {
-        return studentName;
+    public int getId() {
+        return id;
     }
 
-    public List<Lesson> getLessons() {
-        return lessons;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void addLesson(Lesson lesson) {
-        this.lessons.add(lesson);
+    public String getLastName() {
+        return lastName;
+    }
+
+    @Override
+    public String toString() {
+        return firstName + " " + lastName;
     }
 }
