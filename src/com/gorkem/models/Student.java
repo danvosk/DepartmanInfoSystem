@@ -11,13 +11,9 @@ public class Student {
         this.lastName = lastName;
     }
 
-    public int getId() {
-        return id;
-    }
+    public int getId() {return id;}
 
-    public String getFirstName() {
-        return firstName;
-    }
+    public String getFirstName() {return firstName;}
 
     public String getLastName() {
         return lastName;

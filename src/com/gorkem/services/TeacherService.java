@@ -34,8 +34,8 @@ public class TeacherService {
     // ✅ Öğretmenleri ve verdikleri dersleri listeleme
     public void getAllTeachersWithCourses() {
         String query = "SELECT t.first_name, t.last_name, c.course_name " +
-                       "FROM teachers t " +
-                       "LEFT JOIN courses c ON t.id = c.teacher_id";
+                "FROM teachers t " +
+                "LEFT JOIN courses c ON t.id = c.teacher_id";
 
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
@@ -60,14 +60,36 @@ public class TeacherService {
 
     // ✅ Öğretmenin öğrencinin notlarını güncellemesi
     public boolean updateStudentGrades(int studentId, int courseId, int midterm, int finalExam) {
-        String query = "UPDATE student_courses SET midterm = ?, final_exam = ? WHERE student_id = ? AND course_id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+
+            // Check if student exists
+            PreparedStatement checkStudent = conn.prepareStatement("SELECT COUNT(*) FROM students WHERE id = ?");
+            checkStudent.setInt(1, studentId);
+            ResultSet rsStudent = checkStudent.executeQuery();
+            rsStudent.next();
+            if (rsStudent.getInt(1) == 0) {
+                System.out.println("Student with ID " + studentId + " does not exist.");
+                return false;
+            }
+
+            // Check if course exists
+            PreparedStatement checkCourse = conn.prepareStatement("SELECT COUNT(*) FROM courses WHERE id = ?");
+            checkCourse.setInt(1, courseId);
+            ResultSet rsCourse = checkCourse.executeQuery();
+            rsCourse.next();
+            if (rsCourse.getInt(1) == 0) {
+                System.out.println("Course with ID " + courseId + " does not exist.");
+                return false;
+            }
+
+            String query = "UPDATE student_courses SET midterm = ?, final_exam = ? WHERE student_id = ? AND course_id = ?";
+            PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setInt(1, midterm);
             stmt.setInt(2, finalExam);
             stmt.setInt(3, studentId);
             stmt.setInt(4, courseId);
             return stmt.executeUpdate() > 0;
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

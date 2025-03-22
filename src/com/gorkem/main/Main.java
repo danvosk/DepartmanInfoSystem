@@ -112,8 +112,12 @@ public class Main {
                 int midterm = scanner.nextInt();
                 System.out.print("Enter Final Exam Grade: ");
                 int finalExam = scanner.nextInt();
-                teacherService.updateStudentGrades(studentId, courseId, midterm, finalExam);
-                System.out.println("Student grades updated successfully!");
+                boolean isUpdated = teacherService.updateStudentGrades(studentId, courseId, midterm, finalExam);
+                if (isUpdated) {
+                    System.out.println("Student grades updated successfully!");
+                } else {
+                    System.out.println("Failed to update grades.");
+                }
             } else if (choice == 4) {
                 return;
             } else {
